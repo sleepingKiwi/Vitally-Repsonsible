@@ -1,0 +1,60 @@
+.vitally-responsible{
+	max-width:960px;
+}
+
+.vitally-responsible #code-warning{
+	background:#F7D7D7;
+	padding:2em;
+	border-radius:5px;
+	box-shadow:1px 1px 2px 0 rgba(0,0,0,0.1);
+	max-width:600px;
+}
+.vitally-responsible #code-warning strong{
+	font-size:1.3em;
+	text-transform: uppercase;
+}
+.vitally-responsible #code-warning pre{
+	display:inline-block;
+}
+
+.vitally-responsible input{
+	border-radius: 5px;
+	background:#333;
+	border:#222;
+	color:#f7f7f7;
+	outline:0;
+	box-shadow:none;
+	font-size:1em;
+	font-weight:normal;
+	padding:0 0.5em;
+	height:2.5em;
+	line-height: 2.5;
+}
+
+.vitally-responsible pre{
+	background:#eee;
+	padding:2em 1em;
+	max-width:960px;
+}
+.vitally-responsible pre .nt{
+	color:#000080;
+}
+.vitally-responsible pre .na{
+	color:#008080;
+}
+.vitally-responsible pre .s{
+	color:#D14;
+}
+.vitally-responsible pre .c{
+	color:#998;
+	font-style: italic;
+}
+
+.vitally-responsible label{
+	font-weight:bold;
+	display:block;
+}
+
+.vitally-responsible th{
+	display:none;
+}
