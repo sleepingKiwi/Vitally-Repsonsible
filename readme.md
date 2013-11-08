@@ -1,17 +1,3 @@
-=== Vitally Responsible ===
-Contributors: Tedworth, Oscar
-Donate link: http://tedworthandoscar.co.uk
-Tags: responsive, images, picturefill, tedworth and oscar
-Requires at least: 3.5
-Tested up to: 3.7.1
-Stable tag: 0.1
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-
-Responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes.
-
-== Description ==
-
 **Vitally Responsible** is a WordPress plugin to automatically replace image tags in WordPress content with a version of the [picturefill](https://github.com/scottjehl/picturefill) syntax.
 
 Owes a big debt to [Hammy](https://github.com/noeltock/hammy/blob/master/hammy.php) for providing inspiration and a lot of help with the filtering code.
