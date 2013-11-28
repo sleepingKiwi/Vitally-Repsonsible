@@ -333,7 +333,7 @@ class Vitally_Responsible {
      */
     public static function save_content_responsibly( $post_id ) {
 
-	    if($_POST['post_type'] == 'post' || $_POST['post_type'] == 'page'){
+	    if( isset($_POST['post_type']) && ($_POST['post_type'] == 'post' || $_POST['post_type'] == 'page') ){
 
 			delete_post_meta($post_id, 'vitally_filtered_responsibly_less');
 			delete_post_meta($post_id, 'vitally_filtered_responsibly_more');
