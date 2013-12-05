@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
  * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
  * Author: Tedworth & Oscar
- * Version: 0.1
+ * Version: 0.2
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -276,19 +276,28 @@ class Vitally_Responsible {
 
 	                        if ( $crop_sizes[$size_key] <= $width ) { // if the original is larger than our current size (first is 0 so we always get that at least)
 
-	                            $resized_image = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key] . '&crop=0' );
+                                $resized_image = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key] . '&crop=0' );
 
-	                            if ( $size == 0 ) {
-	                            	$picturefill .= '<span data-src="' . $resized_image . '"></span>';
-	                            }else{
-	                            	$picturefill .= '<span data-src="' . $resized_image . '" data-media="(min-width:'. $size .'px)"></span>';
-	                            }
+                                if ( $size == 0 ) {
+                                    $picturefill .= '<span data-src="' . $resized_image . '"></span>';
+                                }else{
+                                    $picturefill .= '<span data-src="' . $resized_image . '" data-media="(min-width:'. $size .'px)"></span>';
+                                }
 
-	                        }
+                            }else{
+
+                                if( $size == 0 ) {
+                                    //if the image is smaller than first crop size just add the original source...
+                                    $picturefill .= '<span data-src="' . $o_src . '"></span>';
+                                }else{
+                                    $picturefill .= '<span data-src="' . $o_src . '" data-media="(min-width:'. $size .'px)"></span>';
+                                }
+
+                            }
 
 	                    }//end for each $break_sizes
 
-	                    $picturefill .= '<!-- Fallback content for non-JS browsers. Same img src as the initial, unqualified source element. --><noscript><img src="' . $o_src . '" alt="' . $alt . '" title="' . $title . '"></noscript></span>';
+	                    $picturefill .= '<!-- IE lt 9 get the original source --> <!--[if (lt IE 9) & (!IEMobile)]> <span data-src="' . $o_src . '"></span> <![endif]--> <!-- Fallback content for non-JS browsers. Same img src as the initial, unqualified source element. --><noscript><img src="' . $o_src . '" alt="' . $alt . '" title="' . $title . '"></noscript></span>';
 
 	                    $content = str_replace( $reg_images[0][$key], $picturefill, $content );
 
