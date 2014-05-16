@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
  * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
  * Author: Tedworth & Oscar
- * Version: 0.2
+ * Version: 0.3
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -120,7 +120,7 @@ class Vitally_Responsible {
      * If plugin was freshly activated then set defaults for the options page.
      */
     private static function vital_defaults(){
-    	$vd = array( 'vital_breaks' => '480,1000', 'vital_crops' => '440,700,1000', 'vital_ignore' => 'nextgen,thumbnail', 'vital_enqueue' => 'false', 'vital_filter_content' => 'false');
+    	$vd = array( 'vital_breaks' => '480,1000', 'vital_crops' => '440,700,1000', 'vital_ignore' => 'nextgen,thumbnail', 'vital_enqueue' => 'false', 'vital_filter_content' => 'false', 'vital_quality' => '100');
     	update_option( 'vitally_responsible_options', $vd );
     }
 
@@ -276,7 +276,7 @@ class Vitally_Responsible {
 
 	                        if ( $crop_sizes[$size_key] <= $width ) { // if the original is larger than our current size (first is 0 so we always get that at least)
 
-                                $resized_image = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key] . '&crop=0' );
+                                $resized_image = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key] . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
 
                                 if ( $size == 0 ) {
                                     $picturefill .= '<span data-src="' . $resized_image . '"></span>';
@@ -297,7 +297,7 @@ class Vitally_Responsible {
 
 	                    }//end for each $break_sizes
 
-	                    $picturefill .= '<!-- IE lt 9 get the original source --> <!--[if (lt IE 9) & (!IEMobile)]> <span data-src="' . $o_src . '"></span> <![endif]--> <!-- Fallback content for non-JS browsers. Same img src as the initial, unqualified source element. --><noscript><img src="' . $o_src . '" alt="' . $alt . '" title="' . $title . '"></noscript></span>';
+	                    $picturefill .= '<!-- IE lt 10 get the original source --> <!--[if (lt IE 10) & (!IEMobile)]> <span data-src="' . $o_src . '"></span> <![endif]--> <!-- Fallback content for non-JS browsers. Same img src as the initial, unqualified source element. --><noscript><img src="' . $o_src . '" alt="' . $alt . '" title="' . $title . '"></noscript></span>';
 
 	                    $content = str_replace( $reg_images[0][$key], $picturefill, $content );
 

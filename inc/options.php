@@ -25,6 +25,7 @@ function vitally_responsible_options_init() {
     register_setting( 'vitally_responsible_options', 'vitally_responsible_options', 'vitally_responsible_options_updated' );
     add_settings_section( 'vitally_responsible_section', '', 'vitally_responsible_options_content', 'vitally-responsible' );
     add_settings_field( 'vital_breakpoints', '', 'vital_option_breakpoints', 'vitally-responsible', 'vitally_responsible_section' );
+    add_settings_field( 'vital_quality', '', 'vital_option_quality', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_crops', '', 'vital_option_crops', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_ignores', '', 'vital_option_ignores', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_enqueue', '', 'vital_option_enqueue', 'vitally-responsible', 'vitally_responsible_section' );
@@ -128,6 +129,25 @@ function vital_option_crops(){
 
     <label for="vitally_responsible_options[vital_crops]">List Image Crop Widths</label>
     <input id='vital-crops' name='vitally_responsible_options[vital_crops]' value='<?php echo $value; ?>' />
+
+    <?php
+
+}
+
+function vital_option_quality(){
+
+    $options = get_option( 'vitally_responsible_options' );
+    $value = $options['vital_quality'];
+
+    ?>
+
+    <hr>
+
+    <h3>Set Quality of resized images</h3>
+    <p><strong>Number from 1-100 indicating no compression (100) or full compression (1)</strong></p>
+
+    <label for="vitally_responsible_options[vital_quality]">Set Quality</label>
+    <input id='vital-quality' name='vitally_responsible_options[vital_quality]' value='<?php echo $value; ?>' />
 
     <?php
 
