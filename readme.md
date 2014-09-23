@@ -13,6 +13,7 @@ The plugin offers an alternative to the_content which saves filtered content to 
 >* Break WPThumb dependancy and bake into plugin using core wp_image_editor functions
 >* Pretty up the options page
 >* FAQ, instructions, general user-friendliness...
+>* Include an option for basic CSS to be automatically enqueued...
 
 ---
 
@@ -23,9 +24,3 @@ The plugin offers an alternative to the_content which saves filtered content to 
 3. Add some settings to the plugin page
 4. ???????
 5. Responsive Images
-
-== Changelog ==
-
-= 0.1 =
-
-* Initial release.
