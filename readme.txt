@@ -4,7 +4,7 @@ Donate link: http://tedworthandoscar.co.uk
 Tags: responsive, images, picturefill, tedworth and oscar
 Requires at least: 3.5
 Tested up to: 4.0
-Stable tag: 0.4
+Stable tag: 0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

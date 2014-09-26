@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
  * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
  * Author: Tedworth & Oscar
- * Version: 0.4
+ * Version: 0.5
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -34,6 +34,18 @@ if ( !function_exists('wpthumb') ) {
  * Setting up Options Page
  */
 include_once( 'inc/options.php' );
+
+
+/**
+ * Automatic Updates
+ * http://w-shadow.com/blog/2010/09/02/automatic-updates-for-any-plugin/
+ */
+require 'inc/plugin-updater/plugin-update-checker.php';
+$MyUpdateChecker = PucFactory::buildUpdateChecker(
+    'http://dist.tedworthandoscar.co.uk/vitally-responsible/metadata.json',
+    __FILE__,
+    'vitally-responsible'
+);
 
 
 /**
