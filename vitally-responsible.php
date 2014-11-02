@@ -245,7 +245,7 @@ echo '
      * I'd like to use DOMDocument for everything but it's hard to convert back to a string 
      * because it wraps in new tags and tries to repair misformatted html etc.
      */
-    private static function responsible_filtering( $content ){
+    public static function responsible_filtering( $content ){
 
         $vital_options = get_option('vitally_responsible_options');
 
@@ -320,7 +320,7 @@ echo '
                         $widest='0';
                         foreach ( $break_sizes as $size_key => $size ) {
 
-                            if ( $crop_sizes[$size_key] <= $width ) { // if the original is larger than our current size (first is 0 so we always get that at least)
+                            if ( $crop_sizes[$size_key] < $width ) { // if the original is larger than our current size (first is 0 so we always get that at least)
 
                                 $resized_image = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key] . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
 
