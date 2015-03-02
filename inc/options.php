@@ -28,11 +28,11 @@ function vitally_responsible_options_init() {
     add_settings_field( 'vital_quality', '', 'vital_option_quality', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_crops', '', 'vital_option_crops', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_ignores', '', 'vital_option_ignores', 'vitally-responsible', 'vitally_responsible_section' );
+    add_settings_field( 'vital_one_point_five', '', 'vital_option_one_point_five', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_padding', '', 'vital_option_padding', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_defer', '', 'vital_option_defer', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_enqueue', '', 'vital_option_enqueue', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_filter_content', '', 'vital_option_filter_content', 'vitally-responsible', 'vitally_responsible_section' );
-
 }
 
 
@@ -172,6 +172,27 @@ function vital_option_ignores(){
 
     <input id='vital-ignores' name='vitally_responsible_options[vital_ignore]' value='<?php echo $value; ?>' />
    
+    <?php
+
+}
+
+
+function vital_option_one_point_five(){
+
+    $options = get_option( 'vitally_responsible_options' );
+    $value = $options['vital_one_point_five'];
+
+    ?>
+
+    <hr>
+
+    <h3>Automatically Add 1.5x Scale Images On Retina Screens?</h3>
+    <p>This setting will automatically add images at 1.5x your regular image sizes and display them on retina/hiDPI screens in the place of your normal images.</p><p>Non-retina devices will show your regular sized images and there will be no double downloads.</p>
+    <select id="vital-one_point_five" name="vitally_responsible_options[vital_one_point_five]">
+      <option value="true" <?php if ( $value == 'true' ) echo 'selected'; ?>>On</option>
+      <option value="false" <?php if ( $value == 'false') echo 'selected'; ?>>Off</option>
+    </select>
+
     <?php
 
 }

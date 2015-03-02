@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
  * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
  * Author: Tedworth & Oscar
- * Version: 0.5
+ * Version: 0.6
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -132,7 +132,7 @@ class Vitally_Responsible {
      * If plugin was freshly activated then set defaults for the options page.
      */
     private static function vital_defaults(){
-        $vd = array( 'vital_breaks' => '480,1000', 'vital_crops' => '440,700,1000', 'vital_ignore' => 'nextgen,thumbnail', 'vital_padding' => 'false', 'vital_defer' => 'false', 'vital_enqueue' => 'false', 'vital_filter_content' => 'false', 'vital_quality' => '100');
+        $vd = array( 'vital_breaks' => '480,1000', 'vital_crops' => '440,700,1000', 'vital_ignore' => 'nextgen,thumbnail', 'vital_padding' => 'false', 'vital_defer' => 'false', 'vital_enqueue' => 'false', 'vital_filter_content' => 'false', 'vital_one_point_five' => 'false', 'vital_quality' => '100');
         update_option( 'vitally_responsible_options', $vd );
     }
 
@@ -324,10 +324,26 @@ echo '
 
                                 $resized_image = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key] . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
 
+                                //RETINA IMAGES ENABLED
+                                $retina_one_point_five = false;
+                                if($vital_options['vital_one_point_five']){
+                                    //is the image big enough for the 1.5 scale crop?
+                                    if ( $crop_sizes[$size_key]*1.5 < $width ) {
+                                        $resized_one_point_five = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key]*1.5 . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
+                                        $retina_one_point_five = true;
+                                    }
+                                }
+
                                 if ( $size == 0 ) {
                                     $picturefill_two .= '<span data-src="' . $resized_image . '"></span>';
+                                    if($retina_one_point_five){
+                                        $picturefill_two .= '<span data-src="' . $resized_one_point_five . '" data-media="(-webkit-min-device-pixel-ratio: 1.5),(min-resolution: 144dpi)"></span>';
+                                    }
                                 }else{
                                     $picturefill_two .= '<span data-src="' . $resized_image . '" data-media="(min-width:'. $size .'px)"></span>';
+                                    if($retina_one_point_five){
+                                        $picturefill_two .= '<span data-src="' . $resized_one_point_five . '" data-media="(min-width:'. $size .'px) and (-webkit-min-device-pixel-ratio: 1.5), (min-width:'. $size .'px) and (min-resolution: 144dpi)"></span>';
+                                    }
                                 }
 
                                 $widest = $crop_sizes[$size_key];
