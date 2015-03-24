@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
  * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
  * Author: Tedworth & Oscar
- * Version: 0.6
+ * Version: 0.6.1
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -326,7 +326,7 @@ echo '
 
                                 //RETINA IMAGES ENABLED
                                 $retina_one_point_five = false;
-                                if($vital_options['vital_one_point_five']){
+                                if($vital_options['vital_one_point_five'] === 'true'){
                                     //is the image big enough for the 1.5 scale crop?
                                     if ( $crop_sizes[$size_key]*1.5 < $width ) {
                                         $resized_one_point_five = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key]*1.5 . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
