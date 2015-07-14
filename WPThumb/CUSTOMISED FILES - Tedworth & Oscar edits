@@ -1,0 +1,8 @@
+/**
+ * wpthumb.php - CUSTOMISED BY TEDWORTH AND OSCAR: 2015-06-03
+ *
+ * - image quality enabled
+ *      https://github.com/humanmade/WPThumb/issues/120
+ * - ImageMagick as default editor
+ *      https://github.com/humanmade/WPThumb/issues/126
+ */
