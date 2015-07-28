@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
  * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
  * Author: Tedworth & Oscar
- * Version: 0.6.2
+ * Version: 0.7.0
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -132,7 +132,7 @@ class Vitally_Responsible {
      * If plugin was freshly activated then set defaults for the options page.
      */
     private static function vital_defaults(){
-        $vd = array( 'vital_breaks' => '480,1000', 'vital_crops' => '440,700,1000', 'vital_ignore' => 'nextgen,thumbnail', 'vital_padding' => 'false', 'vital_defer' => 'false', 'vital_enqueue' => 'false', 'vital_filter_content' => 'false', 'vital_one_point_five' => 'false', 'vital_quality' => '100');
+        $vd = array( 'vital_breaks' => '480,1000', 'vital_crops' => '440,700,1000', 'vital_ignore' => 'nextgen,thumbnail', 'vital_padding' => 'false', 'vital_defer' => 'false', 'vital_enqueue' => 'false', 'vital_filter_content' => 'false', 'vital_pixelholder' => 'false', 'vital_one_point_five' => 'false', 'vital_quality' => '100');
         update_option( 'vitally_responsible_options', $vd );
     }
 
@@ -314,7 +314,11 @@ echo '
                         $picturefill_two = '>';
 
                         if( ($width && $height) && $vital_options['vital_padding'] === 'true' ){
-                            $picturefill_two .= '<span class="picturefill-padder" style="padding-bottom:'.$ratio.'%;"></span>';
+                            $picturefill_two .= '<span class="picturefill-padder" style="padding-bottom:'.$ratio.'%;">';
+                            if($vital_options['vital_pixelholder'] === 'true'){
+                                $picturefill_two .= '<span class="picturefill-padder-back-image" style="background-image:url('.wpthumb( $o_src, 'width=20&crop=0&jpeg_quality=50' ).');"></span>';
+                            }
+                            $picturefill_two .= '</span>';
                         }
 
                         $widest='0';
@@ -330,6 +334,12 @@ echo '
                                     //is the image big enough for the 1.5 scale crop?
                                     if ( $crop_sizes[$size_key]*1.5 < $width ) {
                                         $resized_one_point_five = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key]*1.5 . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
+                                        $retina_one_point_five = true;
+                                    }
+                                }else if($vital_options['vital_one_point_five'] === 'double'){
+                                    //is the image big enough for the 1.5 scale crop? (anything bigger than this gets output even though we're aiming for double here...)
+                                    if ( $crop_sizes[$size_key]*1.5 < $width ) {
+                                        $resized_one_point_five = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key]*2 . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
                                         $retina_one_point_five = true;
                                     }
                                 }

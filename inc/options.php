@@ -33,6 +33,7 @@ function vitally_responsible_options_init() {
     add_settings_field( 'vital_defer', '', 'vital_option_defer', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_enqueue', '', 'vital_option_enqueue', 'vitally-responsible', 'vitally_responsible_section' );
     add_settings_field( 'vital_filter_content', '', 'vital_option_filter_content', 'vitally-responsible', 'vitally_responsible_section' );
+    add_settings_field( 'vital_pixelholder', '', 'vital_option_pixelholder', 'vitally-responsible', 'vitally_responsible_section' );
 }
 
 
@@ -186,10 +187,11 @@ function vital_option_one_point_five(){
 
     <hr>
 
-    <h3>Automatically Add 1.5x Scale Images On Retina Screens?</h3>
-    <p>This setting will automatically add images at 1.5x your regular image sizes and display them on retina/hiDPI screens in the place of your normal images.</p><p>Non-retina devices will show your regular sized images and there will be no double downloads.</p>
+    <h3>Automatically Add Scaled Images On Retina Screens?</h3>
+    <p>This setting will automatically add images at 1.5x or 2x your regular image sizes and display them on retina/hiDPI screens in the place of your normal images.</p><p>Non-retina devices will show your regular sized images and there will be no double downloads.</p>
     <select id="vital-one_point_five" name="vitally_responsible_options[vital_one_point_five]">
-      <option value="true" <?php if ( $value == 'true' ) echo 'selected'; ?>>On</option>
+      <option value="true" <?php if ( $value == 'true' ) echo 'selected'; ?>>1.5x</option>
+      <option value="double" <?php if ( $value == 'double' ) echo 'selected'; ?>>2x</option>
       <option value="false" <?php if ( $value == 'false') echo 'selected'; ?>>Off</option>
     </select>
 
@@ -282,6 +284,27 @@ function vital_option_filter_content(){
     <p>This option is turned off by default as performance may be slightly better (and there is less risk of conflict with other plugins) if you can use the <a href="#code-warning">code</a> mentioned at the top of this page in your theme files.</p>
     <p>If turned on this setting will automatically filter the_content so will work without requiring any changes to theme files</p>
     <select id="vital-filter-content" name="vitally_responsible_options[vital_filter_content]">
+      <option value="true" <?php if ( $value == 'true' ) echo 'selected'; ?>>On</option>
+      <option value="false" <?php if ( $value == 'false') echo 'selected'; ?>>Off</option>
+    </select>
+
+    <?php
+
+}
+
+function vital_option_pixelholder(){
+
+    $options = get_option( 'vitally_responsible_options' );
+    $value = $options['vital_pixelholder'];
+
+    ?>
+
+    <hr>
+
+    <h3>Add low res placeholder images?</h3>
+    <p><strong>THIS WILL ADD CONSIDERABLY TO PAGE WEIGHT/NUMBER OF REQUESTS</strong></p>
+    <p>Adds very low res placeholders if used alongside the padding option. Not styled by default. One day I'll move our generic styling in here...</p>
+    <select id="vital-pixelholder" name="vitally_responsible_options[vital_pixelholder]">
       <option value="true" <?php if ( $value == 'true' ) echo 'selected'; ?>>On</option>
       <option value="false" <?php if ( $value == 'false') echo 'selected'; ?>>Off</option>
     </select>
