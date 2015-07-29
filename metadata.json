@@ -1,8 +1,8 @@
 {
     "name" : "Vitally Responsible",
     "slug" : "vitally-responsible",
-    "download_url" : "http://dist.tedworthandoscar.co.uk/vitally-responsible/current.zip",
-    "version" : "0.6.2",
+    "download_url" : "http://dist.tedworthandoscar.co.uk/vitally-responsible/0.7.0/vitally-responsible.zip",
+    "version" : "0.7.0",
     "author" : "Tedworth & Oscar",
     "sections" : {
         "description" : "Vitally Responsible - https://github.com/sleepingKiwi/Vitally-Repsonsible"
