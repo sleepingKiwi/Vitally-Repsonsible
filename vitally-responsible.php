@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
  * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
  * Author: Tedworth & Oscar
- * Version: 0.7.0
+ * Version: 0.7.1
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -315,8 +315,10 @@ echo '
 
                         if( ($width && $height) && $vital_options['vital_padding'] === 'true' ){
                             $picturefill_two .= '<span class="picturefill-padder" style="padding-bottom:'.$ratio.'%;">';
-                            if($vital_options['vital_pixelholder'] === 'true'){
-                                $picturefill_two .= '<span class="picturefill-padder-back-image" style="background-image:url('.wpthumb( $o_src, 'width=20&crop=0&jpeg_quality=50' ).');"></span>';
+                            if( isset($vital_options['vital_pixelholder']) ){
+                                if($vital_options['vital_pixelholder'] === 'true'){
+                                    $picturefill_two .= '<span class="picturefill-padder-back-image" style="background-image:url('.wpthumb( $o_src, 'width=20&crop=0&jpeg_quality=50' ).');"></span>';
+                                }
                             }
                             $picturefill_two .= '</span>';
                         }
