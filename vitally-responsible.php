@@ -284,7 +284,7 @@ echo '
 
                     $pad_class= '';
                     if($width && $height){
-                        $ratio = round( (($height/$width)*100), 2);
+                        $ratio = round( (($height/$width)*100), 4);
 
                         if( $vital_options['vital_padding'] === 'true' ){
                             $pad_class= 'picturefill-wrap-padded ';
