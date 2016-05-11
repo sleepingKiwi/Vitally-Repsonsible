@@ -390,16 +390,18 @@ echo '
                             //the backup <a tag contains the alt text if it's longer than 0 chars 
                             //long otherwise the href.
                         $vital_resp = '<span class="js--vitally-responsible ' . $classes . '"
+data-responsible
 title="' . $title . '"
 data-sizes="' . $vital_options['vital_sizes'] . '"
 data-srcset="' . $vital_resp_srcset . '"
+data-fallback="' . $largest_source . '"
 data-alt="'. $alt .'"
 data-width="'. $width .'" 
 data-height="'. $height .'" 
 data-padding="'. $ratio .'"
 '. $width_style .'
 >
-<a target="_blank" href="'. $largest_source .'" class="js--vitally-responsible__fallback-link js--only" >'. ( strlen($alt) === 0 ? $largest_source : $alt ) .'</a>';
+<a target="_blank" href="'. $largest_source .'" class="js--vitally-responsible__fallback-link" >'. ( strlen($alt) === 0 ? $largest_source : $alt ) .'</a>';
                         
 
 
