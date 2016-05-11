@@ -2,9 +2,9 @@
 /**
  * Plugin Name: Vitally Responsible
  * Plugin URI: https://github.com/sleepingKiwi/vitally-responsible
- * Description: Automatic responsive image plugin by Tedworth & Oscar, used in many of our bespoke themes. 
+ * Description: Altering WordPress content for lazy responsive images.
  * Author: Tedworth & Oscar
- * Version: 0.7.1
+ * Version: 2.0.1
  * Author URI: http://tedworthandoscar.co.uk
  */
 
@@ -42,7 +42,7 @@ include_once( 'inc/options.php' );
  */
 require 'inc/plugin-updater/plugin-update-checker.php';
 $MyUpdateChecker = PucFactory::buildUpdateChecker(
-    'http://dist.tedworthandoscar.co.uk/vitally-responsible/metadata.json',
+    'http://dist.tedworthandoscar.co.uk/vitally-responsible-2/metadata.json',
     __FILE__,
     'vitally-responsible'
 );
@@ -60,6 +60,24 @@ register_uninstall_hook( __FILE__, array( 'Vitally_Responsible', 'uninstall' ) )
  * The plugin class itself. beautiful.
  */
 class Vitally_Responsible {
+
+
+    /**
+     * Helper functions for transients
+     */
+
+        //deleting all transients saved by this plugin.
+    public static function delete_vresp_transients(){
+        global $wpdb;
+
+        $transient_string = '_transient_vresp_%';
+        $transient_timeout_string = '_transient_timeout_vresp_%';
+
+        $sql = "DELETE FROM $wpdb->options WHERE option_name LIKE '$transient_string'";
+        $clean_one = $wpdb -> query( $sql );
+        $sql_two = "DELETE FROM $wpdb->options WHERE option_name LIKE '$transient_timeout_string'";
+        $clean_two = $wpdb -> query( $sql_two );
+    }
 
 
     /**
@@ -85,7 +103,7 @@ class Vitally_Responsible {
     /**
      * The plugin has been deactivated.
      *
-     * This is just for testing purposes really - deactivation removes all metadata currently
+     * deactivation removes all responsive content transient data currently
      */
     public static function deactivation(){
         
@@ -93,8 +111,8 @@ class Vitally_Responsible {
         if ( ! current_user_can( 'activate_plugins' ) )
             return;
 
-        delete_post_meta_by_key( 'vitally_filtered_responsibly_less' );
-        delete_post_meta_by_key( 'vitally_filtered_responsibly_more' );
+        //delete all transients saved by this plugin
+        self::delete_vresp_transients();
 
         //for testing
         //delete_option( 'vitally_responsible_options' ); 
@@ -106,7 +124,7 @@ class Vitally_Responsible {
      * The plugin was uninstalled!
      *
      * Checks user permissions etc. then deletes all options for this plugin.
-     * Also deletes all filtered content from all posts/pages where it was stored as meta
+     * Also deletes all transient data saved for responsive content
      */
     public static function uninstall(){
         
@@ -120,8 +138,9 @@ class Vitally_Responsible {
 
         //cleaning up
         delete_option( 'vitally_responsible_options' ); 
-        delete_post_meta_by_key( 'vitally_filtered_responsibly_less' );
-        delete_post_meta_by_key( 'vitally_filtered_responsibly_more' );
+        
+        //delete all transients saved by this plugin
+        self::delete_vresp_transients();
         
     }
 
@@ -132,26 +151,18 @@ class Vitally_Responsible {
      * If plugin was freshly activated then set defaults for the options page.
      */
     private static function vital_defaults(){
-        $vd = array( 'vital_breaks' => '480,1000', 'vital_crops' => '440,700,1000', 'vital_ignore' => 'nextgen,thumbnail', 'vital_padding' => 'false', 'vital_defer' => 'false', 'vital_enqueue' => 'false', 'vital_filter_content' => 'false', 'vital_pixelholder' => 'false', 'vital_one_point_five' => 'false', 'vital_quality' => '100');
+        $vd = array( 
+            'vital_sizes' => '(min-width: 81.25em) 1200px, (min-width: 30.1em) 90vw, 100vw', 
+            'vital_crops' => '480,800,1200,1600,2400', 
+            'vital_ignore' => 'thumbnail,vital-non-responsive', 
+            'vital_padding' => 'true', 
+            'vital_pixelholder' => 'false',
+            'vital_quality' => '100'
+        );
         update_option( 'vitally_responsible_options', $vd );
     }
 
 
-    /**
-     * Enqueue standalone picturefill js if the options demand it!
-     *
-     * The options page gives the option of including picturefill automatically or for admins to handle it all themselves... 
-     */
-    public static function enqueue_picturefill(){
-
-        $ops = get_option('vitally_responsible_options');
-
-        if( $ops['vital_enqueue'] === 'true' ){
-            wp_register_script( 'picturefill', plugins_url( 'js/vitally-responsible-picturefill.min.js' , __FILE__ ), array(), '1.0', true );
-            wp_enqueue_script( 'picturefill' );
-        }
-
-    }
 
 
     /**
@@ -162,6 +173,8 @@ class Vitally_Responsible {
         wp_enqueue_style( 'vitally-responsible-css', plugins_url( 'css/vitally-responsible-admin.css' , __FILE__ ), array(), '1.0', 'all' );
 
     }
+
+
 
 
     /**
@@ -176,15 +189,15 @@ class Vitally_Responsible {
         $contains_more = preg_match( '/<!--more(.*?)?-->/', $post->post_content);
 
         // do we already have filtered content saved for this post? 
-        $filtered_content_more = get_post_meta($post->ID, 'vitally_filtered_responsibly_more', true);
+        $filtered_content_more = get_transient('vresp_more_'.$post->ID);
 
         $cached = false;
 
         if($contains_more === 1 && !$more){
 
             //there's a flipping <!--more--> tag to care about and we're on a page that requires less than the full content...
-            $filtered_content_less = get_post_meta($post->ID, 'vitally_filtered_responsibly_less', true);
-            if( !empty( $filtered_content_less ) ){
+            $filtered_content_less = get_transient('vresp_less_'.$post->ID);
+            if( false !== $filtered_content_less ){
 
                 //there's filtered content, return it
                 $content = $filtered_content_less;
@@ -195,7 +208,7 @@ class Vitally_Responsible {
         }else{
 
             //there's either no <!--more--> or we're on a page that wants the full content
-            if( !empty( $filtered_content_more ) ){
+            if( false !== $filtered_content_more ){
 
                 //there's filtered content, return it
                 $content = $filtered_content_more;
@@ -218,9 +231,11 @@ class Vitally_Responsible {
             //save the results for next time
             if($contains_more === 1 && !$more){
                 // this is the 'preview' version of the post - with <!--more--> replaced
-                update_post_meta($post->ID, 'vitally_filtered_responsibly_less', $filtered_content);
+                $saved_content = $filtered_content . '<!-- transient (vresp_less_'.$post->ID.') saved:' . date('Y-m-d H:i:s') . '-->';
+                set_transient('vresp_less_'.$post->ID, $saved_content, DAY_IN_SECONDS);
             }else{
-                update_post_meta($post->ID, 'vitally_filtered_responsibly_more', $filtered_content);
+                $saved_content = $filtered_content . '<!-- transient (vresp_more_'.$post->ID.') saved:' . date('Y-m-d H:i:s') . '-->';
+                set_transient('vresp_more_'.$post->ID, $saved_content, DAY_IN_SECONDS);
             }
 
             $content = $filtered_content;
@@ -275,11 +290,12 @@ echo '
                     $alt = $img->getAttribute('alt');
                     $title = $img->getAttribute('title');
 
-                    $defer = '';
-                    if( $vital_options['vital_defer'] === 'true' ){
-                        $defer = 'data-deferred';
-                        $classes .= ' data-deferred';
-                    }
+                        //we're now deferring as the default
+                    //$defer = '';
+                    //if( $vital_options['vital_defer'] === 'true' ){
+                        //$defer = 'data-deferred';
+                        $classes .= ' js--vitally-responsible--deferred';
+                    //}
 
 
                     $pad_class= '';
@@ -287,7 +303,7 @@ echo '
                         $ratio = round( (($height/$width)*100), 4);
 
                         if( $vital_options['vital_padding'] === 'true' ){
-                            $pad_class= 'picturefill-wrap-padded ';
+                            $classes .= ' js--vitally-responsible--padded';
                         }
                     }else{
                         $ratio = 'not-available';
@@ -303,87 +319,116 @@ echo '
 
                     if ( ! preg_match( $ignorelist, $classes ) ) {
 
-                        $break_sizes = explode( ",", $vital_options['vital_breaks'] );
-                        array_unshift($break_sizes, 0); //put a zero in first!
+                        
+                        /**
+                         * First we build up the srcset string - this is built up of all of the 
+                         * cropped image sizes that are viable given our initial image size
+                         */
                         $crop_sizes = explode( ",", $vital_options['vital_crops']);
+                            //we save the largest source, 
+                            //that's what our noscript element gets as the default src and what
+                            //we use as a fallback link for worst cases.
+                        $largest_source = '';
+                        $largest_size = '';
+                        $vital_resp_srcset = '';
 
+                        foreach ( $crop_sizes as $size_key => $size ) {
 
-                        // Building markup using picturefill format - https://github.com/scottjehl/picturefill
-                        $picturefill_one =  '<span data-picture data-alt="'. $alt .'" class="picturefill-wrap picturefill '. $pad_class . $classes .'" title="' . $title . '" '. $defer .' data-width="'. $width .'" data-height="'. $height .'" data-padding="'. $ratio .'" ';
+                            if ( $size < $width ) {
 
-                        $picturefill_two = '>';
+                                //obviously we only add a crop if the original image was already bigger
+                                $resized_image = wpthumb( $o_src, 'width=' . $size . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
 
-                        if( ($width && $height) && $vital_options['vital_padding'] === 'true' ){
-                            $picturefill_two .= '<span class="picturefill-padder" style="padding-bottom:'.$ratio.'%;">';
-                            if( isset($vital_options['vital_pixelholder']) ){
-                                if($vital_options['vital_pixelholder'] === 'true'){
-                                    $picturefill_two .= '<span class="picturefill-padder-back-image" style="background-image:url('.wpthumb( $o_src, 'width=20&crop=0&jpeg_quality=50' ).');"></span>';
+                                $largest_source = $resized_image;
+                                $largest_size = $size;
+
+                                if( $size_key !== 0 ){
+                                    $vital_resp_srcset .= ', ';
                                 }
-                            }
-                            $picturefill_two .= '</span>';
-                        }
-
-                        $widest='0';
-                        foreach ( $break_sizes as $size_key => $size ) {
-
-                            if ( $crop_sizes[$size_key] < $width ) { // if the original is larger than our current size (first is 0 so we always get that at least)
-
-                                $resized_image = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key] . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
-
-                                //RETINA IMAGES ENABLED
-                                $retina_one_point_five = false;
-                                if($vital_options['vital_one_point_five'] === 'true'){
-                                    //is the image big enough for the 1.5 scale crop?
-                                    if ( $crop_sizes[$size_key]*1.5 < $width ) {
-                                        $resized_one_point_five = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key]*1.5 . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
-                                        $retina_one_point_five = true;
-                                    }
-                                }else if($vital_options['vital_one_point_five'] === 'double'){
-                                    //is the image big enough for the 1.5 scale crop? (anything bigger than this gets output even though we're aiming for double here...)
-                                    if ( $crop_sizes[$size_key]*1.5 < $width ) {
-                                        $resized_one_point_five = wpthumb( $o_src, 'width=' . $crop_sizes[$size_key]*2 . '&crop=0&jpeg_quality='.$vital_options['vital_quality'] );
-                                        $retina_one_point_five = true;
-                                    }
-                                }
-
-                                if ( $size == 0 ) {
-                                    $picturefill_two .= '<span data-src="' . $resized_image . '"></span>';
-                                    if($retina_one_point_five){
-                                        $picturefill_two .= '<span data-src="' . $resized_one_point_five . '" data-media="(-webkit-min-device-pixel-ratio: 1.5),(min-resolution: 144dpi)"></span>';
-                                    }
-                                }else{
-                                    $picturefill_two .= '<span data-src="' . $resized_image . '" data-media="(min-width:'. $size .'px)"></span>';
-                                    if($retina_one_point_five){
-                                        $picturefill_two .= '<span data-src="' . $resized_one_point_five . '" data-media="(min-width:'. $size .'px) and (-webkit-min-device-pixel-ratio: 1.5), (min-width:'. $size .'px) and (min-resolution: 144dpi)"></span>';
-                                    }
-                                }
-
-                                $widest = $crop_sizes[$size_key];
+                                $vital_resp_srcset .= $resized_image.' '.$size.'w';
 
                             }else{
 
-                                if( $size == 0 ) {
-                                    //if the image is smaller than first crop size just add the original source...
-                                    $picturefill_two .= '<span data-src="' . $o_src . '"></span>';
-                                }else{
-                                    $picturefill_two .= '<span data-src="' . $o_src . '" data-media="(min-width:'. $size .'px)"></span>';
-                                }
+                                /**
+                                 * if we ever reach a point where the original is smaller than the
+                                 * desired crop size we just add the original and break the loop...
+                                 */
+                                $largest_source = $o_src;
+                                $largest_size = $width;
 
-                                $widest = $width;
+                                if( $size_key !== 0 ){
+                                    $vital_resp_srcset .= ', ';
+                                }
+                                $vital_resp_srcset .= $o_src.' '.$width.'w';
+
+                                break;
 
                             }
 
-                        }//end for each $break_sizes
+                        }
 
-                        $picturefill_two .= '<!-- IE lt 10 get the original source --> <!--[if (lt IE 10) & (!IEMobile)]> <span data-src="' . $o_src . '"></span> <![endif]--> <!-- Fallback content for non-JS browsers. Same img src as the initial, unqualified source element. --><noscript><img src="' . $o_src . '" alt="' . $alt . '" title="' . $title . '"></noscript></span>';
+                            //if no crop sizes have been specified by user we make sure to add the full sized url...
+                        if( count($crop_sizes) === 0 ){
+                            $largest_source = $o_src;
+                            $largest_size = $width;
+                            $vital_resp_srcset = $o_src.' '.$width.'w';
+                        }
+
+
 
                         $width_style = '';
                         if( ($width && $height) && $vital_options['vital_padding'] === 'true' ){
-                            $width_style = 'style="width:'.$widest.'px;"';
+                                //this ensures the padders aren't padding too big!
+                                //coupled with max-width in the css
+                            $width_style = 'style="width:'.$largest_size.'px;"';
                         }
-                        $picturefill = $picturefill_one.$width_style.$picturefill_two;
 
-                        $content = str_replace( $reg_images[0][$key], $picturefill, $content );
+
+
+
+                            //building out the actual HTML structure
+                            //the backup <a tag contains the alt text if it's longer than 0 chars 
+                            //long otherwise the href.
+                        $vital_resp = '<span class="js--vitally-responsible ' . $classes . '"
+title="' . $title . '"
+data-sizes="' . $vital_options['vital_sizes'] . '"
+data-srcset="' . $vital_resp_srcset . '"
+data-alt="'. $alt .'"
+data-width="'. $width .'" 
+data-height="'. $height .'" 
+data-padding="'. $ratio .'"
+'. $width_style .'
+>
+<a target="_blank" href="'. $largest_source .'" class="js--vitally-responsible__fallback-link js--only" >'. ( strlen($alt) === 0 ? $largest_source : $alt ) .'</a>';
+                        
+
+
+                            //adding the padding and placeholder elements if required
+                        if( ($width && $height) && $vital_options['vital_padding'] === 'true' ){
+                            $vital_resp .= '<span class="js--vitally-responsible__padder" style="padding-bottom:'.$ratio.'%;">';
+                            if( isset($vital_options['vital_pixelholder']) ){
+                                if($vital_options['vital_pixelholder'] === 'true'){
+                                    $vital_resp .= '<span class="js--vitally-responsible__padder-back-image" style="background-image:url('.wpthumb( $o_src, 'width=16&crop=0&jpeg_quality=50' ).');"></span>';
+                                }
+                            }
+                            $vital_resp .= '</span>';
+                        }
+
+                        
+                            //adding the noscript fallback
+                        $vital_resp .= '<noscript>
+<img 
+src="' . $largest_source . '" 
+alt="' . $alt . '" 
+title="' . $title . '" 
+sizes="' . $vital_options['vital_sizes'] . '"
+srcset="' . $vital_resp_srcset . '"
+>
+</noscript>
+</span>';
+
+
+                        $content = str_replace( $reg_images[0][$key], $vital_resp, $content );
 
                     }//end if no classes are ignored preg_match
                     
@@ -399,37 +444,14 @@ echo '
 
 
     /**
-     * This is the good stuff. Filtering the content
-     *
-     * Filters the_content and replaces it with the filtered content (containing responsive image markup).
-     * If there's no filtered content stored in vitally_filtered_responsibly meta field we generate and save it here. 
-     * Things are complicated by the existence of <!--more--> and <!--noteaser--> and the fact that the 'more' text
-     * can be customised in a lot of places (filtered, specified in <!--more-->, passed to the_content()/get_thecontent())
-     */
-    public static function make_content_responsible( $content ){
-
-        // Only filter content in the loop because people are always chucking apply_filters( 'the_content', $whatever ); around
-        // TODO - test with is_main_query() as well
-        if( in_the_loop() ) { 
-
-            $content = self::responsible_filtering($content);
-
-        }
-
-        return $content;
-
-    }
-
-
-    /**
      * Clearing our cached filtered content whenever a post is updated in any way. They will be rebuilt next time the post/page is visited by anyone
      */
     public static function save_content_responsibly( $post_id ) {
 
         //if( isset($_POST['post_type']) && ($_POST['post_type'] == 'post' || $_POST['post_type'] == 'page') ){
 
-            delete_post_meta($post_id, 'vitally_filtered_responsibly_less');
-            delete_post_meta($post_id, 'vitally_filtered_responsibly_more');
+            delete_transient('vresp_less_'.$post_id);
+            delete_transient('vresp_more_'.$post_id);
 
         //}
 
@@ -445,10 +467,6 @@ echo '
 /**
  * Adding actions and filters
  */
-
-// enqueue scripts
-add_action( 'wp_enqueue_scripts', array('Vitally_Responsible', 'enqueue_picturefill'));
-
 // option page and admin styles
 add_action( 'admin_print_styles', array('Vitally_Responsible', 'admin_styles'));
 
@@ -467,22 +485,6 @@ add_action( 'admin_print_styles', array('Vitally_Responsible', 'admin_styles'));
  * http://nacin.com/2010/05/18/rethinking-template-tags-in-plugins/
  */
 add_action( 'vitally_responsible_content', array('Vitally_Responsible', 'vital_the_content'), 10, 2); 
-
-/**
- * filter the_content if the options say we should
- *
- * priority of 11 ensures our filter is run after WordPress does it's formatting
- * WordPress chucks a load  of filters on the_content at default priority (of 10)
- * We get in there after so formatting is still applied and shortcodes are all expanded etc.
- * And then we can replace image content (if we need to) without worrying about our changes being overwritten
- * By an overzealous filter...
- * http://core.trac.wordpress.org/browser/tags/3.7.1/src/wp-includes/default-filters.php#L131
- */
-$vital_options = get_option('vitally_responsible_options');
-
-if( $vital_options['vital_filter_content'] === 'true' ){
-    add_filter( 'the_content', array('Vitally_Responsible', 'make_content_responsible'), 11 );
-}
 
 //save filtered content on post update/save
 add_action( 'save_post', array('Vitally_Responsible', 'save_content_responsibly') );

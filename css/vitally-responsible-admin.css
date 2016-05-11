@@ -3,12 +3,17 @@
 }
 
 .vitally-responsible #code-warning{
-	background:#F7D7D7;
+	background:#ffffff;
 	padding:2em;
 	border-radius:5px;
 	box-shadow:1px 1px 2px 0 rgba(0,0,0,0.1);
 	max-width:600px;
 }
+
+.vitally-responsible hr{
+	margin: 24px auto 48px;
+}
+
 .vitally-responsible #code-warning strong{
 	font-size:1.3em;
 	text-transform: uppercase;
@@ -17,7 +22,7 @@
 	display:inline-block;
 }
 
-.vitally-responsible input{
+.vitally-responsible input, .vitally-responsible select{
 	border-radius: 5px;
 	background:#333;
 	border:#222;
@@ -29,6 +34,15 @@
 	padding:0 0.5em;
 	height:2.5em;
 	line-height: 2.5;
+	margin-top: 24px;
+}
+
+.vitally-responsible input[type="text"]{
+	width: 100%;
+}
+
+.vitally-responsible .submit{
+	margin-top: 48px;
 }
 
 .vitally-responsible pre{
