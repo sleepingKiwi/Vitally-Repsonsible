@@ -401,7 +401,7 @@ data-height="'. $height .'"
 data-padding="'. $ratio .'"
 '. $width_style .'
 >
-<a target="_blank" href="'. $largest_source .'" class="js--vitally-responsible__fallback-link" >'. ( strlen($alt) === 0 ? $largest_source : $alt ) .'</a>';
+<span class="js--vitally-responsible__alt" >'. $alt .'</span>';
                         
 
 
